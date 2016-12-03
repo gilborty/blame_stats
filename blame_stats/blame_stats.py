@@ -133,6 +133,20 @@ class BlameParser(object):
         self.data = zip(services, time)
         return True
 
+class MarkdownTableGenerator(object):
+    """Creates a markdown table from a list of tuples
+
+    Attributes:
+        input_data (list): The data to format into a table 
+        header (list, optional): The headers for this table (defaults to [Time (seconds), Service]) 
+    """
+    def __init__(self, input_data, header=["Time (seconds)", "Service"]):
+            self.input_data = input_data
+            self.headers = header
+
+            
+
+
 
 
 # Parse the arguments
