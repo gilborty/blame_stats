@@ -9,70 +9,12 @@ Attributes:
 Todo:
 
 """
-# from __future__ import print_function
-
-# import argparse
-# import re
-
-
-# lines = []
-
-# # Dump the file into a list
-# with open(args.file) as data:
-#         lines = data.readlines()
-
-
-# # Get the header
-# if args.tabs:
-#         # Strip the tabs
-#         headers = lines[0].replace("\t", ',')
-#         headers = headers.strip().split(',')
-# else:
-#         headers = lines[0].strip().split(args.delimiter)
-
-# # Open the markdown file
-# with open(args.output, 'a') as output_file:
-
-#         # Generate the headers for Markdown
-#         header_break = []
-#         for header in headers:
-#                 output_file.write("| %s " % str(header))
-#                 header_break.append("|----")
-#         # Close the header
-#         output_file.write("|\n")
-
-#         #Write the break from header to data
-#         for col in header_break:
-#                 output_file.write(col)
-#         # Close it
-#         output_file.write("|\n")
-
-
-#         # Now, get the data ready
-#         lines.pop(0)
-#         for line in lines:
-#                 #Check for tabs
-#                 if args.tabs:
-#                         dataline = line.replace("\t", ',')
-#                         dataline = dataline.strip().split(',')
-#                 else:
-#                         dataline = line.strip().split(args.delimiter)
-
-#                 # Format the data
-#                 data_string = ""
-#                 for data in dataline:
-#                         data_string += "| {0} ".format(data)
-
-#                 # Close the data entry
-#                 data_string += "|\n"
-
-#                 # And write
-#                 output_file.write(data_string)
-
-# output_file.close()
-
 import argparse
+import matplotlib.pyplot as plt
+import numpy as np
 import os
+import yaml
+
 
 class BlameParser(object):
     """Parses the result of systemd-analyze blame, cleans it, and formats it into a list of tuples
@@ -165,22 +107,21 @@ class MarkdownTableGenerator(object):
         # And the data
         self._write_data()
 
-
     def _write_data(self):
-        """Helper function to write data to markdown file 
+        """Helper function to write data to markdown file
 
         """
         # Open the file to write to
         with open(self.output_path, 'a') as output:
-                for dataline in self.input_data:
-                        # Format the data
-                        data_string = ""
-                        for data in dataline:
-                                data_string += "| {0} ".format(data)
+            for dataline in self.input_data:
+                # Format the data
+                data_string = ""
+                for data in dataline:
+                    data_string += "| {0} ".format(data)
 
-                        # Close the data entry
-                        data_string += "|\n"
-                        output.write(data_string)
+                # Close the data entry
+                data_string += "|\n"
+                output.write(data_string)
         output.close()
 
     def _write_headers(self):
@@ -189,8 +130,8 @@ class MarkdownTableGenerator(object):
         """
         # Check to see if this file exists, if not touch it
         if not os.path.isfile(self.output_path):
-                open(self.output_path, 'a').close()
-                
+            open(self.output_path, 'a').close()
+
         # Open the file to write to
         with open(self.output_path, 'r+') as output:
 
@@ -210,17 +151,62 @@ class MarkdownTableGenerator(object):
         output.close()
 
 
-# Parse the arguments
-parser = argparse.ArgumentParser()
+def main():
+        # Parse the arguments
+    parser = argparse.ArgumentParser()
 
-parser.add_argument(
-    "--file",
-    "-f",
-    help="Path to the file containing the data",
-    required=True)
+    parser.add_argument(
+        "--config",
+        "-c",
+        help="Path to config file for this script",
+        required=True)
 
-args = parser.parse_args()
+    parser.add_argument(
+        "--file",
+        "-f",
+        help="Path to the file containing the data",)
+
+    parser.add_argument(
+        "--output",
+        "-d",
+        help="Path to the output directory to put the results and graphs")
+    args = parser.parse_args()
+
+    # Parse the YAML config file
+    with open(args.config, 'r') as stream:
+        try:
+            config = yaml.load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    # If there are command line arguments, override the YAML config
+    if args.file:
+        input_file = args.file
+    else:
+        input_file = config["input-file"]
+    if args.output:
+        output_dir = args.output
+    else:
+        output_dir = config["output-directory"]
+
+    # Setup the output directory
+    if not os.path.exists(output_dir):
+            # Create the directory
+        os.makedirs(output_dir)
+
+    # Parse the input file
+    blame_parser = BlameParser(input_file)
+
+    # Create the markdown table
+    markdown_output = os.path.join(output_dir, config["markdown-table-name"] + ".md")
+    markdown_table_gen = MarkdownTableGenerator(blame_parser.get_data, markdown_output)
+
+    # Create the graphs
+    # Bar graph
+    plt.figure(1)
+    
 
 
-p = BlameParser(args.file)
-md_gen = MarkdownTableGenerator(p.get_data, "./text.md")
+
+if __name__ == "__main__":
+    main()

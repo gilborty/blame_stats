@@ -1,0 +1,6 @@
+image: sample.img
+
+input-file: ../data/bootimage.txt
+
+output-directory: ./output/
+markdown-table-name: bootimage
