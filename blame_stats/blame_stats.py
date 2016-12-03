@@ -1,15 +1,8 @@
 # -*- coding: utf-8 -*-
-"""A simple application to read a text file and output a markdown table
-
-Markdown table syntax:
-
-| header tag | header tag | header tag |
-| ---------- | ---------- | ---------- |
-| data       | data       | data       | 
-
+"""A simple application that generates statistics for the result of systemd-analyze blame
 
 Example:
-        $ python markdown_table_generator --file my_file.txt --output my_table.md
+        $ python blame_stats --file bootimage.txt --output bootimage_stats.png
 
 Attributes:
 
