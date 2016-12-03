@@ -76,7 +76,7 @@ import argparse
 
 
 class BlameParser(object):
-    """Parses the result of systemd-analyze blame, cleans it, and formats it into a dict data structure
+    """Parses the result of systemd-analyze blame, cleans it, and formats it into a list of tuples
 
     Attributes:
         input_file (str): Path to the file containing the results of systemd-analyze blame
@@ -91,16 +91,16 @@ class BlameParser(object):
 
         """
         self.input_file = input_file
-        self.data = dict()
+        self.data = {}
 
         self._parse(self.input_file)
 
     @property
     def get_data(self):
-        """dict: The cleaned data"""
+        """list: The cleaned data"""
         return self.data
 
-    def _parse(self, input):
+    def _parse(self, input_file):
         """Parses the input file and puts into a dict
 
         Note:
@@ -112,8 +112,9 @@ class BlameParser(object):
             True if successful, False otherwise.
         """
         # Try to open the file
-        cleaned_lines = []
-        with open(input) as data_file:
+        time = []
+        services = []
+        with open(input_file) as data_file:
             for line in data_file:
                 # Split by tabs, strip new line
                 line = line.strip().split('\t')
@@ -124,11 +125,12 @@ class BlameParser(object):
                         line[0] = float(line[0])/1000.0
                 else:
                         line[0] = line[0].replace("s", "", 1)
-
-                cleaned_lines.append(line)
+                
+                time.append(line[0])
+                services.append(line[1])
         data_file.close()
 
-        self.data = {key: value for (value, key) in cleaned_lines}
+        self.data = zip(services, time)
         return True
 
 
