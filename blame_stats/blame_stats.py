@@ -15,7 +15,6 @@ Todo:
 # import re
 
 
-
 # lines = []
 
 # # Dump the file into a list
@@ -33,7 +32,7 @@ Todo:
 
 # # Open the markdown file
 # with open(args.output, 'a') as output_file:
-        
+
 #         # Generate the headers for Markdown
 #         header_break = []
 #         for header in headers:
@@ -63,17 +62,17 @@ Todo:
 #                 data_string = ""
 #                 for data in dataline:
 #                         data_string += "| {0} ".format(data)
-                
+
 #                 # Close the data entry
 #                 data_string += "|\n"
-                
+
 #                 # And write
 #                 output_file.write(data_string)
-                
+
 # output_file.close()
 
 import argparse
-
+import os
 
 class BlameParser(object):
     """Parses the result of systemd-analyze blame, cleans it, and formats it into a list of tuples
@@ -120,12 +119,12 @@ class BlameParser(object):
                 line = line.strip().split('\t')
                 # Remove units for time
                 if "ms" in line[0]:
-                        line[0] = line[0].replace("ms", "", 1)
-                        # Convert to seconds 
-                        line[0] = float(line[0])/1000.0
+                    line[0] = line[0].replace("ms", "", 1)
+                    # Convert to seconds
+                    line[0] = float(line[0]) / 1000.0
                 else:
-                        line[0] = line[0].replace("s", "", 1)
-                
+                    line[0] = line[0].replace("s", "", 1)
+
                 time.append(line[0])
                 services.append(line[1])
         data_file.close()
@@ -133,39 +132,95 @@ class BlameParser(object):
         self.data = zip(services, time)
         return True
 
+
 class MarkdownTableGenerator(object):
     """Creates a markdown table from a list of tuples
 
     Attributes:
-        input_data (list): The data to format into a table 
-        header (list, optional): The headers for this table (defaults to [Time (seconds), Service]) 
+        input_data (list): The data to format into a table
+        output_path (str): Where to put the table
+        header (list, optional): The headers for this table (defaults to [Time (seconds), Service])
     """
-    def __init__(self, input_data, header=["Time (seconds)", "Service"]):
-            self.input_data = input_data
-            self.headers = header
 
-            
+    def __init__(self, input_data, output_path,
+                 header=["Services", "Time (seconds)"]):
+        self.input_data = input_data
+        self.output_path = output_path
+        self.headers = header
+
+        self._generate()
+
+    def _generate(self):
+        """Creates a markdown table
+
+        Note:
+
+        Args:
+
+        Returns:
+        """
+        # Write the headers
+        self._write_headers()
+
+        # And the data
+        self._write_data()
 
 
+    def _write_data(self):
+        """Helper function to write data to markdown file 
+
+        """
+        # Open the file to write to
+        with open(self.output_path, 'a') as output:
+                for dataline in self.input_data:
+                        # Format the data
+                        data_string = ""
+                        for data in dataline:
+                                data_string += "| {0} ".format(data)
+
+                        # Close the data entry
+                        data_string += "|\n"
+                        output.write(data_string)
+        output.close()
+
+    def _write_headers(self):
+        """Helper function to write the markdown headers
+
+        """
+        # Check to see if this file exists, if not touch it
+        if not os.path.isfile(self.output_path):
+                open(self.output_path, 'a').close()
+                
+        # Open the file to write to
+        with open(self.output_path, 'r+') as output:
+
+            # Generate the headers for Markdown
+            header_break = []
+            for header in self.headers:
+                output.write("| %s " % str(header))
+                header_break.append("|----")
+            # Close the header
+            output.write("|\n")
+
+            # Write the break from header to data
+            for col in header_break:
+                output.write(col)
+            # Close it
+            output.write("|\n")
+        output.close()
 
 
 # Parse the arguments
 parser = argparse.ArgumentParser()
 
-parser.add_argument("--file", "-f", help="Path to the file containing the data", required=True)
+parser.add_argument(
+    "--file",
+    "-f",
+    help="Path to the file containing the data",
+    required=True)
 
 args = parser.parse_args()
 
 
 p = BlameParser(args.file)
-print(p.get_data)
-
-
-
-
-
-
-
-
-
-
+md_gen = MarkdownTableGenerator(p.get_data, "./text.md")
