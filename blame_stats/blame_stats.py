@@ -150,12 +150,18 @@ class MarkdownTableGenerator(object):
             output.write("|\n")
         output.close()
 
+
 def get_max_time(data_in):
-        
-        return float(data_in[0][1])
+
+    return float(data_in[0][1])
+
+
+def conditional_autopct(pct):
+    return ('%.2f' % pct) if pct > 10 else ''
+
 
 def main():
-        # Parse the arguments
+    # Parse the arguments
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -201,8 +207,10 @@ def main():
     blame_parser = BlameParser(input_file)
 
     # Create the markdown table
-    markdown_output = os.path.join(output_dir, config["markdown-table-name"] + ".md")
-    markdown_table_gen = MarkdownTableGenerator(blame_parser.get_data, markdown_output)
+    markdown_output = os.path.join(
+        output_dir, config["markdown-table-name"] + ".md")
+    markdown_table_gen = MarkdownTableGenerator(
+        blame_parser.get_data, markdown_output)
 
     # Create the graphs
     # Bar graph
@@ -213,46 +221,51 @@ def main():
     bar_labels = []
     for value in blame_parser.get_data:
             # Strip .service
-            bar_labels.append(value[0].replace(".service", "", 1))
-            bar_values.append(value[1])
+        bar_labels.append(value[0].replace(".service", "", 1))
+        bar_values.append(value[1])
 
     bar_labels = list(reversed(bar_labels))
     bar_values = list(reversed(bar_values))
 
     pos = np.arange(len(bar_labels)) + 0.5
 
-    plt.barh(pos, bar_values, align='center', color=config["bar-graph-options"]["bar-color"])
+    plt.barh(pos, bar_values, align='center', color=config[
+             "bar-graph-options"]["bar-color"])
     plt.yticks(pos, bar_labels)
-    
-    plt.title(config["bar-graph-options"]["title"] + " Image: " + config["image"])
+
+    plt.title(
+        config["bar-graph-options"]["title"] +
+        " Image: " +
+        config["image"])
     plt.xlabel(config["bar-graph-options"]["xlabel"])
     plt.ylabel(config["bar-graph-options"]["ylabel"])
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, config["bar-graph-options"]["file-name"] + ".png"))
+    plt.savefig(
+        os.path.join(
+            output_dir,
+            config["bar-graph-options"]["file-name"] +
+            ".png"))
 
     # Pie Chart
     plt.figure(2, figsize=(24, 16), dpi=80)
-    ax = plt.axes([0.1, 0.1, 0.8, 0.8])
 
-        # The slices will be ordered and plotted counter-clockwise.
+    # Matplotlib magic
     labels = bar_labels
-    fracs = bar_values
-    plt.pie(fracs,
-                autopct='%1.1f%%', startangle=90)
-    plt.title(config["pie-chart-options"]["title"] + " Image: " + config["image"])
-    
+    fracs = map(float, bar_values)
 
+    for index in range(0, len(labels)):
+        percent = fracs[index] / sum(fracs)
+        if percent < 0.1:
+            labels[index] = ""
 
-
-
+    plt.pie(fracs, labels=labels, startangle=90, autopct=conditional_autopct)
+    plt.title(
+        config["pie-chart-options"]["title"] +
+        " Image: " +
+        config["image"])
 
     plt.show()
-
-        
-
-
-
 
 
 if __name__ == "__main__":
