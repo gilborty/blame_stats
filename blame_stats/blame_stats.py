@@ -272,6 +272,12 @@ def main():
         " Image: " +
         config["image"])
 
+    plt.savefig(
+    os.path.join(
+        output_dir,
+        config["pie-chart-options"]["file-name"] +
+        ".png"))
+
     plt.show()
 
 if __name__ == "__main__":
