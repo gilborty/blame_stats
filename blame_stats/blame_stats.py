@@ -11,6 +11,7 @@ Todo:
 """
 import argparse
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import os
 import yaml
@@ -159,6 +160,11 @@ def get_max_time(data_in):
 def conditional_autopct(pct):
     return ('%.2f' % pct) if pct > 10 else ''
 
+def generate_color_map(data_in):
+
+        for index in range(len(data_in)):
+                pass
+        return list(reversed(([(x/50.0, x/50.0, 0.75) for x in range(len(data_in))])))
 
 def main():
     # Parse the arguments
@@ -259,6 +265,7 @@ def main():
         if percent < 0.1:
             labels[index] = ""
 
+    # Color map
     plt.pie(fracs, labels=labels, startangle=90, autopct=conditional_autopct)
     plt.title(
         config["pie-chart-options"]["title"] +
@@ -266,7 +273,6 @@ def main():
         config["image"])
 
     plt.show()
-
 
 if __name__ == "__main__":
     main()
