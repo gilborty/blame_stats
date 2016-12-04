@@ -160,11 +160,14 @@ def get_max_time(data_in):
 def conditional_autopct(pct):
     return ('%.2f' % pct) if pct > 10 else ''
 
+
 def generate_color_map(data_in):
 
-        for index in range(len(data_in)):
-                pass
-        return list(reversed(([(x/50.0, x/50.0, 0.75) for x in range(len(data_in))])))
+    for index in range(len(data_in)):
+        pass
+    return list(reversed(([(x / 50.0, x / 50.0, 0.75)
+                           for x in range(len(data_in))])))
+
 
 def main():
     # Parse the arguments
@@ -273,10 +276,10 @@ def main():
         config["image"])
 
     plt.savefig(
-    os.path.join(
-        output_dir,
-        config["pie-chart-options"]["file-name"] +
-        ".png"))
+        os.path.join(
+            output_dir,
+            config["pie-chart-options"]["file-name"] +
+            ".png"))
 
     plt.show()
 
