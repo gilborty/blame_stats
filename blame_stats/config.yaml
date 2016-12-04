@@ -4,3 +4,12 @@ input-file: ../data/bootimage.txt
 
 output-directory: ./output/
 markdown-table-name: bootimage
+bar-graph-options:
+    title: Service vs Time to Start (seconds)
+    xlabel: Time (seconds)
+    ylabel: Service
+    bar-color: "#0D47A1"
+    file-name: bar_graph
+pie-chart-options:
+    title: Percentage of time spent
+    file-name: pie_chart
