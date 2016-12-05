@@ -160,13 +160,16 @@ def get_max_time(data_in):
 def conditional_autopct(pct):
     return ('%.2f' % pct) if pct > 10 else ''
 
-
-def generate_color_map(data_in):
-
-    for index in range(len(data_in)):
-        pass
-    return list(reversed(([(x / 50.0, x / 50.0, 0.75)
-                           for x in range(len(data_in))])))
+# Same default color map as Google Docs
+docs_color_map = ["#3366CC",
+                  "#DC3912",
+                  "#FF9900",
+                  "#109618",
+                  "#990099",
+                  "#0099C6",
+                  "#DD4477",
+                  "#66AA00",
+                  "#B82E2E"]
 
 
 def main():
@@ -269,7 +272,12 @@ def main():
             labels[index] = ""
 
     # Color map
-    plt.pie(fracs, labels=labels, startangle=90, autopct=conditional_autopct)
+    plt.pie(
+        fracs,
+        labels=labels,
+        startangle=90,
+        autopct=conditional_autopct,
+        colors=docs_color_map)
     plt.title(
         config["pie-chart-options"]["title"] +
         " Image: " +
