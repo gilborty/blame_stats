@@ -1,6 +1,6 @@
 image: sample.img
 
-input-file: ../data/bootimage.txt
+input-file: boottime.txt
 
 output-directory: ./output/
 markdown-table-name: bootimage

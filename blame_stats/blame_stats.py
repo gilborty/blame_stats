@@ -59,14 +59,14 @@ class BlameParser(object):
         with open(input_file) as data_file:
             for line in data_file:
                 # Split by tabs, strip new line
-                line = line.strip().split('\t')
+                line = line.strip().split()
                 # Remove units for time
                 if "ms" in line[0]:
                     line[0] = line[0].replace("ms", "", 1)
                     # Convert to seconds
                     line[0] = float(line[0]) / 1000.0
                 else:
-                    line[0] = line[0].replace("s", "", 1)
+                    line[0] = float(line[0].replace("s", "", 1))
 
                 time.append(line[0])
                 services.append(line[1])
@@ -134,7 +134,7 @@ class MarkdownTableGenerator(object):
             open(self.output_path, 'a').close()
 
         # Open the file to write to
-        with open(self.output_path, 'r+') as output:
+        with open(self.output_path, 'w') as output:
 
             # Generate the headers for Markdown
             header_break = []
